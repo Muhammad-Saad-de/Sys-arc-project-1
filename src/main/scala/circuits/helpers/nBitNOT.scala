@@ -8,5 +8,9 @@ class nBitNOT(n: Int) extends Module {
   val a   = IO(Input(Vec(n, Bool())))
   val out = IO(Output(Vec(n, Bool())))
 
-  ???
+  for (i <- 0 until n) {
+    val notGate = Module(new NOTGate)
+    notGate.a := a(i)
+    out(i)    := notGate.out
+  }
 }

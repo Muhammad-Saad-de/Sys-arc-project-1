@@ -8,5 +8,21 @@ class nBitOR(n: Int) extends Module {
   val a   = IO(Input(Vec(n, Bool())))
   val out = IO(Output(Bool()))
 
-  ???
+  if (n == 1) {
+    out := a(0)
+  } else {
+    val firstGate = Module(new ORGate)
+    firstGate.a := a(0)
+    firstGate.b := a(1)
+
+    var temp = firstGate.out
+
+    for (i <- 2 until n) {
+      val secGate = Module(new ORGate)
+      secGate.a := temp
+      secGate.b := a(i)
+      temp = secGate.out
+    }
+    out := temp
+  }
 }
