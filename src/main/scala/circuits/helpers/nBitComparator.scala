@@ -16,7 +16,7 @@ class nBitComparator(width: Int) extends Module {
 // note for my teammates:
   // tempEQ basically tracks if all the bits examined so far are equal.
   // tempGT tracks if A has been greater than B so far.
-  
+
   // start comparisons from the MSB down to LSB.
 
   for (i <- (width - 1) to 0 by -1) {
