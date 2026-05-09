@@ -1,2 +1,0 @@
-ORGate.sv
-nBitOR.sv

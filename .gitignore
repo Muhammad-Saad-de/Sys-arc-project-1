@@ -13,3 +13,4 @@ submissions/
 .vscode/
 build/verilator/
 verilator/
+build/

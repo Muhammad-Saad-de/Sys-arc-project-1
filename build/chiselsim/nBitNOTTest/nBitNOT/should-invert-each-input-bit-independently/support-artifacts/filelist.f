@@ -1,2 +1,0 @@
-NOTGate.sv
-nBitNOT.sv

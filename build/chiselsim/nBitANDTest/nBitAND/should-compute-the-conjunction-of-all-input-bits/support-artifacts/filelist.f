@@ -1,2 +1,0 @@
-ANDGate.sv
-nBitAND.sv
