@@ -14,7 +14,7 @@ class TwosComplementToSignedMagnitude(width: Int) extends Module {
 // subtract 1 from the whole number.
 
   val Subtract_one = Wire(Vec(width, Bool())) // handles -1 part.
-  var carry: Bool  = false.B // carry-in = 0 
+  var carry: Bool  = false.B                  // carry-in = 0
 
   for (i <- 0 until width) {
     val fa = Module(new FullAdder)

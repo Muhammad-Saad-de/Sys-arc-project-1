@@ -22,7 +22,7 @@ class SignedMagnitudeToTwosComplement(width: Int) extends Module {
   }
 
 // now we have to handle the case of adding 1.
-  val addGate     = Wire(Vec(width - 1, Bool())) // Add +1 
+  val addGate     = Wire(Vec(width - 1, Bool())) // Add +1
   var carry: Bool = true.B
 
   for (i <- 0 until width - 1) {

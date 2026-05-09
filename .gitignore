@@ -11,4 +11,5 @@ submissions/
 .metals/
 .bloop/
 .vscode/
-build/
+build/verilator/
+verilator/
