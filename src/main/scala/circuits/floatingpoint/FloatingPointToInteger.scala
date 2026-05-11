@@ -194,13 +194,6 @@ class FloatingPointToInteger extends Module {
 
   val leftShifted = ls4
 
-<<<<<<< HEAD
-      val orGate = Module(new ORGate())
-      orGate.a := bit
-      orGate.b := matchGate.out
-      bit      := orGate.out
-    }
-=======
   // ─────────────────────────────────────────────
   // 10. Right barrel shifter  (5 stages: shift by 1/2/4/8/16)
   //     Control bits come from RightShiftAmount[4:0].
@@ -226,7 +219,6 @@ class FloatingPointToInteger extends Module {
     mRS1.b(i) := (if (i <= 28) rs0(i + 2) else false.B) // shift right 2
   }
   rs1 := mRS1.out
->>>>>>> e339ef81e78c361e6f7751eeecad09a04c444c76
 
   // Stage 2: shift right by 4
   val rs2  = Wire(Vec(31, Bool()))
@@ -272,14 +264,7 @@ class FloatingPointToInteger extends Module {
 
   // Mux to get if underflow → 0, else if overflow → 1, else → normalResult
 
-<<<<<<< HEAD
-  val muxU = Module(new Mux(31))
-  muxU.sel := underflow
-  muxU.a   := result
-  muxU.b   := zero
-=======
   val magnitude = Wire(Vec(31, Bool()))
->>>>>>> e339ef81e78c361e6f7751eeecad09a04c444c76
 
   val muxOverflow = Module(new Mux(31))
   muxOverflow.sel := overflow
