@@ -62,7 +62,14 @@ class FloatingPointToInteger extends Module {
 
   // 5. Shift amount = realExp - 23
   val twentyThree = Wire(Vec(8, Bool()))
-  twentyThree := Vec(true.B, true.B, false.B, false.B, false.B, false.B, false.B, false.B)
+  twentyThree(0) := true.B
+  twentyThree(1) := true.B
+  twentyThree(2) := true.B
+  twentyThree(3) := false.B
+  twentyThree(4) := true.B
+  twentyThree(5) := false.B
+  twentyThree(6) := false.B
+  twentyThree(7) := false.B
 
     val shiftSub = Module(new nBitAdderSubtractor(8))
   shiftSub.a := realExp
