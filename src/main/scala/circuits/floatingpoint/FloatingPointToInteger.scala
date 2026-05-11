@@ -105,15 +105,9 @@ class FloatingPointToInteger extends Module {
       matchGate.b := eq.out
 
       val orGate = Module(new ORGate())
-<<<<<<< HEAD
-      orGate.a   := shiftedBit
-      orGate.b   := matchPos.out
-      shiftedBit := orGate.out
-=======
       orGate.a := bit
       orGate.b := matchGate.out
       bit      := orGate.out
->>>>>>> 3f5668e (Shoaib final)
     }
 
     result(i) := bit
@@ -131,11 +125,7 @@ class FloatingPointToInteger extends Module {
 
   val muxU = Module(new Mux(31))
   muxU.sel := underflow
-<<<<<<< HEAD
-  muxU.a   := normal
-=======
   muxU.a   := result
->>>>>>> 3f5668e (Shoaib final)
   muxU.b   := zero
 
   val muxO = Module(new Mux(31))
