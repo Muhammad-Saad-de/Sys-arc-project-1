@@ -30,13 +30,13 @@ class FloatingPointToInteger extends Module {
     expOr = orGate.out
   }
 
- val isZeroExp = Module(new NOTGate())
+  val isZeroExp = Module(new NOTGate())
   isZeroExp.a := expOr
 
 // build significand = hidden bit + mantissa
   val significand = Wire(Vec(24, Bool()))
 // hidden bit: 1 for normals, 0 for denormals/zero
-  significand(23) := expOr 
+  significand(23) := expOr
 
   for (i <- 0 until 23) {
     significand(i) := mantissa(i)
@@ -71,20 +71,20 @@ class FloatingPointToInteger extends Module {
   twentyThree(6) := false.B
   twentyThree(7) := false.B
 
-    val shiftSub = Module(new nBitAdderSubtractor(8))
-  shiftSub.a := realExp
-  shiftSub.b := twentyThree
+  val shiftSub = Module(new nBitAdderSubtractor(8))
+  shiftSub.a          := realExp
+  shiftSub.b          := twentyThree
   shiftSub.enable_sub := true.B
 
-  val shift = shiftSub.sum
+  val shift    = shiftSub.sum
   val shiftNeg = shift(7)
 
   // Build 31-bit extended value
   val ext = Wire(Vec(31, Bool()))
-  for (i <- 0 until 24) ext(i) := significand(i)
+  for (i <- 0 until 24) ext(i)  := significand(i)
   for (i <- 24 until 31) ext(i) := false.B
 
-  //  Manual shift 
+  //  Manual shift
   val result = Wire(Vec(31, Bool()))
 
   for (i <- 0 until 31) {
@@ -99,8 +99,8 @@ class FloatingPointToInteger extends Module {
       matchPos.b := ext(j)
 
       val orGate = Module(new ORGate())
-      orGate.a := shiftedBit
-      orGate.b := matchPos.out
+      orGate.a   := shiftedBit
+      orGate.b   := matchPos.out
       shiftedBit := orGate.out
     }
 
@@ -119,13 +119,13 @@ class FloatingPointToInteger extends Module {
 
   val muxU = Module(new Mux(31))
   muxU.sel := underflow
-  muxU.a := normal
-  muxU.b := zero
+  muxU.a   := normal
+  muxU.b   := zero
 
   val muxO = Module(new Mux(31))
-  muxO.sel := false.B 
-  muxO.a := muxU.out
-  muxO.b := ones
+  muxO.sel := false.B
+  muxO.a   := muxU.out
+  muxO.b   := ones
 
   val magnitude = muxO.out
 
