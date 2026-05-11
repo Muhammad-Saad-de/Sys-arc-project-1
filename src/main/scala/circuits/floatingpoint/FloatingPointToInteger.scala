@@ -89,22 +89,34 @@ class FloatingPointToInteger extends Module {
 
   for (i <- 0 until 31) {
 
-    val shiftedBit = Wire(Bool())
-    shiftedBit := false.B
+    val bit = Wire(Bool())
+    bit := false.B
 
     for (j <- 0 until 31) {
 
-      val matchPos = Module(new ANDGate())
-      matchPos.a := (shift === (i - j).S) // conceptual match
-      matchPos.b := ext(j)
+      // shift matches only when index aligns
+      val matchGate = Module(new ANDGate())
+
+      val eq = Module(new XORGate())
+      eq.a := shift(i) // placeholder-safe logic (bit-based control)
+      eq.b := false.B
+
+      matchGate.a := ext(j)
+      matchGate.b := eq.out
 
       val orGate = Module(new ORGate())
+<<<<<<< HEAD
       orGate.a   := shiftedBit
       orGate.b   := matchPos.out
       shiftedBit := orGate.out
+=======
+      orGate.a := bit
+      orGate.b := matchGate.out
+      bit      := orGate.out
+>>>>>>> 3f5668e (Shoaib final)
     }
 
-    result(i) := shiftedBit
+    result(i) := bit
   }
 
   // 9. Handle underflow and overflow
@@ -119,7 +131,11 @@ class FloatingPointToInteger extends Module {
 
   val muxU = Module(new Mux(31))
   muxU.sel := underflow
+<<<<<<< HEAD
   muxU.a   := normal
+=======
+  muxU.a   := result
+>>>>>>> 3f5668e (Shoaib final)
   muxU.b   := zero
 
   val muxO = Module(new Mux(31))
