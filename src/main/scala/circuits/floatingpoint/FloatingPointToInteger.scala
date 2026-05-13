@@ -46,64 +46,66 @@ class FloatingPointToInteger extends Module {
     significand(i) := mantissa(i)
   }
 
-  // realexp = exp - bias (127)
-  val bias = Wire(Vec(8, Bool()))
-  bias(0) := true.B
-  bias(1) := true.B
-  bias(2) := true.B
-  bias(3) := true.B
-  bias(4) := true.B
-  bias(5) := true.B
-  bias(6) := true.B
-  bias(7) := false.B
+  // underflow: exp < 127 means |float| < 1.0, result rounds to zero
+  // check by comparing exp directly against 127
+  val biasVal = Wire(Vec(8, Bool()))
+  biasVal(0) := true.B
+  biasVal(1) := true.B
+  biasVal(2) := true.B
+  biasVal(3) := true.B
+  biasVal(4) := true.B
+  biasVal(5) := true.B
+  biasVal(6) := true.B
+  biasVal(7) := false.B
 
-  val expSub = Module(new nBitAdderSubtractor(8))
-  expSub.a          := exp
-  expSub.b          := bias
-  expSub.enable_sub := true.B
+  // swap a and b: biasVal > exp is the same as exp < 127
+  val expLess127 = Module(new nBitComparator(8))
+  expLess127.a := biasVal
+  expLess127.b := exp
 
-  val realExp = expSub.sum
+  val underflow =
+    expLess127.gt // 127 > exp → exp < 127 → realExp < 0 → |value| < 1 → truncates to 0
 
-  val underflow = realExp(7) // MSB = 1 means negative in two's-complement
+  // overflow: exp > 157 means realExp > 30, result saturates to max magnitude
+  // 157 = 127 + 30 = 0b10011101
+  val expMax = Wire(Vec(8, Bool()))
+  expMax(0) := true.B
+  expMax(1) := false.B
+  expMax(2) := true.B
+  expMax(3) := true.B
+  expMax(4) := true.B
+  expMax(5) := false.B
+  expMax(6) := false.B
+  expMax(7) := true.B
 
-  // overflow - max we can go till 30 right shifts bcz => 30 - 23 = 7 then we have 24 signficand + 7 more bits = 31 max bits for integer magnitude
-  val thirty = Wire(Vec(8, Bool()))
-  thirty(0) := false.B
-  thirty(1) := true.B
-  thirty(2) := true.B
-  thirty(3) := true.B
-  thirty(4) := true.B
-  thirty(5) := false.B
-  thirty(6) := false.B
-  thirty(7) := false.B
+  val expGreater157 = Module(new nBitComparator(8))
+  expGreater157.a := exp
+  expGreater157.b := expMax
 
-  val expGreater30 = Module(new nBitComparator(8))
-  expGreater30.a := realExp
-  expGreater30.b := thirty
+  val overflow = expGreater157.gt // exp > 157 → realExp > 30 → overflow
 
-  val overflow = expGreater30.gt // if greater than 30 we output max magnitude - all bits 1s
-
-  // now we need shift amount because significand has 23 fractional bits
-  val twentyThree = Wire(Vec(8, Bool()))
-  twentyThree(0) := true.B
-  twentyThree(1) := true.B
-  twentyThree(2) := true.B
-  twentyThree(3) := false.B
-  twentyThree(4) := false.B
-  twentyThree(5) := false.B
-  twentyThree(6) := false.B
-  twentyThree(7) := false.B
+  // shiftAmount = exp - 150  (combined bias+23 offset in one subtraction)
+  // 150 = 127 + 23 = 0b10010110
+  // positive shiftAmount → left shift, negative → right shift
+  val oneFifty = Wire(Vec(8, Bool()))
+  oneFifty(0) := false.B
+  oneFifty(1) := true.B
+  oneFifty(2) := true.B
+  oneFifty(3) := false.B
+  oneFifty(4) := true.B
+  oneFifty(5) := false.B
+  oneFifty(6) := false.B
+  oneFifty(7) := true.B
 
   val shiftSub = Module(new nBitAdderSubtractor(8))
-  shiftSub.a          := realExp
-  shiftSub.b          := twentyThree
+  shiftSub.a          := exp
+  shiftSub.b          := oneFifty
   shiftSub.enable_sub := true.B
 
-  val shiftAmount = shiftSub.sum
+  val shiftAmount = shiftSub.sum // exp - 150: negative means right-shift
 
-  // when exponent < 0 -> number between -1 and 1 then round magnitude toward zero = 0
-  // absolute value of shiftAmount when negative: use NOT + 1 (two's complement negation)
-  // this avoids nBitAdderSubtractor carrying issues when a=0
+  // absolute value of shiftAmount when negative: NOT all bits then add 1 (two's complement negation)
+  // avoids nBitAdderSubtractor carrying issues when a=0
   val notShift = Wire(Vec(8, Bool()))
   for (i <- 0 until 8) {
     val ng = Module(new NOTGate())
@@ -122,7 +124,7 @@ class FloatingPointToInteger extends Module {
 
   val RightShiftAmount = incShift.sum // magnitude of shift when shiftAmount < 0
 
-  // extend significant bcz shift can extend 23 bit to 31 bit signficand atmost
+  // extend significand bcz shift can extend 23 bit to 31 bit signficand atmost
   val extSig = Wire(Vec(31, Bool()))
   for (i <- 0 until 31) {
     if (i < 24) {
