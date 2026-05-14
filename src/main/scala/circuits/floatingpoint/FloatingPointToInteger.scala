@@ -135,7 +135,7 @@ class FloatingPointToInteger extends Module {
   }
 
   // ─────────────────────────────────────────────
-  // 9. Left barrel shifter  (5 stages: shift by 1/2/4/8/16)
+  //    Left barrel shifter  (5 stages: shift by 1/2/4/8/16)
   //    Each stage is a single Mux(31) — if the control bit is 1
   //    the whole 31-bit vector is shifted by that stage's amount,
   //    otherwise it passes through unchanged.
@@ -197,7 +197,7 @@ class FloatingPointToInteger extends Module {
   val leftShifted = ls4
 
   // ─────────────────────────────────────────────
-  // 10. Right barrel shifter  (5 stages: shift by 1/2/4/8/16)
+  //     Right barrel shifter  (5 stages: shift by 1/2/4/8/16)
   //     Control bits come from RightShiftAmount[4:0].
   //     Max useful right-shift is 23 (realExp=0 → shiftAmount=−23).
   // ─────────────────────────────────────────────
